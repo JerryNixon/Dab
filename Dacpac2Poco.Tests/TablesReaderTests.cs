@@ -6,7 +6,7 @@ namespace Dacpac2Poco.Tests
         public void GetTables_WithOneTable_ReturnsOne()
         {
             using var tablesReader = new Dac2Poco.Tables.Reader("sample.dacpac");
-            var tables = tablesReader.GetTables().ToArray();
+            var tables = tablesReader.GetTables().ToArray(); //
             Assert.Single(tables);
         }
     }
