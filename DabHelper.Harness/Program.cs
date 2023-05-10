@@ -30,7 +30,6 @@ internal class Program
         var insertResult = await h.InsertAsync(new[] { insert }).ToArrayAsync();
         var inserted = insertResult.First().Result!;
 
-
         Assert.Equal(insert.Name, inserted.Name);
         Assert.Equal(insert.City, inserted.City);
         Assert.Equal(insert.State, inserted.State);

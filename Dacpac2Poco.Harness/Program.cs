@@ -1,4 +1,6 @@
-﻿internal partial class Program
+﻿using Dac2Poco;
+
+internal partial class Program
 {
     private static void Main(string[] args)
     {
@@ -16,6 +18,7 @@
 
         var path = "output.cs";
         File.WriteAllText(path, code);
+
         try { "sample.dacpac.xml".OpenInVsCode(); } catch { "sample.dacpac.xml".OpenInNotepad(); }
         try { path.OpenInVsCode(); } catch { path.OpenInNotepad(); }
     }

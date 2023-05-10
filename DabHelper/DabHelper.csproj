@@ -13,4 +13,17 @@
     <PackageIcon>dabHelp.png</PackageIcon>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Include="dabHelp.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="dabHelp.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
 </Project>

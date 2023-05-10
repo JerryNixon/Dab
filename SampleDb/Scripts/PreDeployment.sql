@@ -10,7 +10,4 @@ BEGIN
     CREATE USER [DabUser] FOR LOGIN [DabLogin];
 END
 
-IF NOT IS_MEMBER('db_owner') = 1 AND EXISTS (SELECT * FROM sys.database_principals WHERE name = 'DabUser')
-BEGIN
-    EXEC sp_addrolemember 'db_owner', 'DabUser'
-END
+EXEC sp_addrolemember 'db_owner', 'DabUser'
