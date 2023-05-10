@@ -3,8 +3,24 @@ using System.Xml.XPath;
 
 namespace Dac2Poco;
 
-public static class SqlUtilities
+public static class Utilities
 {
+    public static string ToPascalCase(string input)
+    {
+        string[] words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            string word = words[i];
+            if (word.Length > 0)
+            {
+                words[i] = char.ToUpper(word[0]) + word.Substring(1);
+            }
+        }
+
+        return string.Join("", words);
+    }
+
     public static bool HasRangeString(this string sqlDataType, out string range)
     {
         if (!Enum.TryParse<SqlDataTypeOption>(sqlDataType, true, out var sqlType))
