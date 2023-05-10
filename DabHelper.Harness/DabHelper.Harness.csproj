@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DabHelper\DabHelper.csproj" />
+    <ProjectReference Include="..\DabHelper\DabHelper.Library.csproj" />
   </ItemGroup>
 
 </Project>

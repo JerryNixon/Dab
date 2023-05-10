@@ -10,8 +10,8 @@ internal partial class Program
         using var viewsReader = new Dac2Poco.Views.Reader("sample.dacpac");
         var views = viewsReader.GetViews().ToArray();
 
-        using var procsReader = new Dac2Poco.Procedures.Reader("sample.dacpac");
-        var procs = procsReader.GetProcedures().ToArray();
+        // using var procsReader = new Dac2Poco.Procedures.Reader("sample.dacpac");
+        // var procs = procsReader.GetProcedures().ToArray();
 
         var generator = new Generator(tables, views);
         var code = generator.Generate("Poco", true);
