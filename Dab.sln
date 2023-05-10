@@ -21,6 +21,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DabHelper_", "DabHelper_", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dacpac2Poco_", "Dacpac2Poco_", "{C9A4AAFD-910C-49DD-907A-8520269B7050}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{75D140CD-4CC2-42D9-92D2-F92531FB59FD}"
+	ProjectSection(SolutionItems) = preProject
+		dab-config.json = dab-config.json
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

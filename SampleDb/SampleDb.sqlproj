@@ -59,6 +59,7 @@
     <Folder Include="Tables" />
     <Folder Include="Snapshots" />
     <Folder Include="Views" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Customers.sql" />
@@ -69,5 +70,9 @@
     <None Include="Snapshots\SampleDb_20230510_11-04-53.dacpac" />
     <None Include="Snapshots\SampleDb_20230510_11-05-39.dacpac" />
     <None Include="Snapshots\SampleDb_20230510_11-18-04.dacpac" />
+    <None Include="SampleDb.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\PreDeployment.sql" />
   </ItemGroup>
 </Project>
