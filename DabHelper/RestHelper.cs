@@ -8,10 +8,15 @@ using System.Web;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Dynamic;
+using System.ComponentModel;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DabHelpers;
 
-public partial class RestHelper<T> : IRestHelper<T> where T : new()
+public partial class RestHelper<T> where T : new()
 {
     private readonly string baseUri;
     private readonly HttpClient httpClient;
@@ -22,11 +27,20 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
         this.httpClient = httpClient ?? new();
     }
 
-    public async Task<(IEnumerable<T> Items, string ContinuationUrl)> GetManyAsync(
+    /// <summary>
+    /// Get a list of records
+    /// </summary>
+    /// <param name="select" cref="https://learn.microsoft.com/en-us/azure/data-api-builder/rest#select">The query parameter $select allow to specify which fields must be returned. </param>
+    /// <param name="filter" cref="https://learn.microsoft.com/en-us/azure/data-api-builder/rest#filter">The value of the $filter option is predicate expression (an expression that returns a boolean value) using entity's fields. </param>
+    /// <param name="orderby" cref="https://learn.microsoft.com/en-us/azure/data-api-builder/rest#orderby">The value of the orderby parameter is a comma-separated list of expressions used to sort the items.</param>
+    /// <param name="first" cref="https://learn.microsoft.com/en-us/azure/data-api-builder/rest#first-and-after">The query parameter $first allows to limit the number of items returned.</param>
+    /// <param name="after" cref="https://learn.microsoft.com/en-us/azure/data-api-builder/rest#first-and-after">The query parameter $first allows to limit the number of items returned.</param>
+    /// <returns>List of items and NextLink can be used to get the next set of items via the $after query parameter</returns>
+    public async Task<(IEnumerable<T> Items, string NextLink)> GetAsync(
         string? select = null, string? filter = null, string? orderby = null, int? first = null, int? after = null)
     {
         var url = CombineQuerystring();
-        Trace.WriteLine($"{nameof(GetManyAsync)} URL:{url}");
+        Trace.WriteLine($"{nameof(GetAsync)} URL:{url}");
 
         var response = await httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
@@ -73,12 +87,17 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
         }
     }
 
-    public async Task<T?> GetOneAsync(T model)
+    /// <summary>
+    /// Get a single record
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
+    public async Task<T?> GetAsync(T model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
         var url = AssembleUrl(model);
-        Trace.WriteLine($"{nameof(GetOneAsync)} URL:{url}");
+        Trace.WriteLine($"{nameof(GetAsync)} URL:{url}");
 
         var response = await httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode)
@@ -92,35 +111,19 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
         return result!.Values.SingleOrDefault();
     }
 
-    public async IAsyncEnumerable<(T Input, T? Result, Exception? Error)> InsertAsync(IEnumerable<T> models)
-    {
-        ArgumentNullException.ThrowIfNull(models);
-
-        foreach (var model in models)
-        {
-            yield return await RunAsync(model);
-        }
-
-        async Task<(T model, T? Result, Exception? Error)> RunAsync(T model)
-        {
-            try
-            {
-                return (model, await InsertAsync(model), default);
-            }
-            catch (Exception ex)
-            {
-                return (model, default, ex);
-            }
-        }
-    }
-
-    public async Task<T> InsertAsync(T model)
+    /// <summary>
+    /// Inserts the provided record
+    /// </summary>
+    /// <param name="model"></param>
+    /// <param name="propertiesToRemove">(optional) For models without keys, manually supply the keys to be removed from the model</param>
+    /// <returns>Returns the inserted record</returns>
+    public async Task<T> InsertAsync(T model, params string[] propertiesToRemove)
     {
         EnsureValidModel(model);
         Trace.WriteLine($"{nameof(InsertAsync)} URL:{baseUri}");
 
-        var clone = Clone(model, removeKeys: false);
-        var response = await httpClient.PostAsJsonAsync(baseUri, clone);
+        var json = Clone(model, removeKeys: true, removeReadOnlyProperties: true, otherPropertiesToRemove: propertiesToRemove);
+        var response = await httpClient.PostAsync(baseUri, json);
         if (!response.IsSuccessStatusCode)
         {
             Debugger.Break();
@@ -130,135 +133,6 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
 
         var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
         return result!.Values.Single();
-    }
-
-    public async IAsyncEnumerable<(T Input, T? Result, Exception? Error)> UpsertAsync(IEnumerable<T> models)
-    {
-        ArgumentNullException.ThrowIfNull(models);
-       
-        foreach (var model in models)
-        {
-            yield return await RunAsync(model);
-        }
-
-        async Task<(T model, T? Result, Exception? Error)> RunAsync(T model)
-        {
-            try
-            {
-                return (model, await UpsertAsync(model), default);
-            }
-            catch (Exception ex)
-            {
-                return (model, default, ex);
-            }
-        }
-    }
-
-    public async Task<T> UpsertAsync(T model, params (string Name, string Value)[] keys)
-    {
-        return await UpsertAsync(model, baseUri + string.Join("/", keys.Select(x => $"{x.Name}/{x.Value}")));
-    }
-
-    public async Task<T> UpsertAsync(T model)
-    {
-        return await UpsertAsync(model, AssembleUrl(model));
-    }
-
-    private async Task<T> UpsertAsync(T model, string url)
-    {
-        Trace.WriteLine($"{nameof(UpsertAsync)} URL:{url}");
-
-        var clone = Clone(model);
-        var response = await httpClient.PutAsJsonAsync(url, clone);
-        if (!response.IsSuccessStatusCode)
-        {
-            Debugger.Break();
-        }
-
-        response.EnsureSuccessStatusCode();
-
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
-        return result!.Values.Single();
-    }
-
-    public async IAsyncEnumerable<(T Input, T? Result, Exception? Error)> UpdateAsync(IEnumerable<T> models)
-    {
-        ArgumentNullException.ThrowIfNull(models);
-
-        foreach (var model in models)
-        {
-            yield return await RunAsync(model);
-        }
-
-        async Task<(T model, T? Result, Exception? Error)> RunAsync(T model)
-        {
-            try
-            {
-                return (model, await UpdateAsync(model), default);
-            }
-            catch (Exception ex)
-            {
-                return (model, default, ex);
-            }
-        }
-    }
-
-    public async Task<T> UpdateAsync(T model, params (string Name, string Value)[] keys)
-    {
-        return await UpdateAsync(model, baseUri + string.Join("/", keys.Select(x => $"{x.Name}/{x.Value}")));
-    }
-
-    public async Task<T> UpdateAsync(T model)
-    {
-        return await UpdateAsync(model, AssembleUrl(model));
-    }
-
-    private async Task<T> UpdateAsync(T model, string url)
-    {
-        ArgumentNullException.ThrowIfNull(model);
-
-        Trace.WriteLine($"{nameof(UpdateAsync)} URL:{url}");
-
-        var clone = Clone(model);
-        var response = await httpClient.PatchAsJsonAsync(url, clone);
-        if (!response.IsSuccessStatusCode)
-        {
-            Debugger.Break();
-        }
-
-        response.EnsureSuccessStatusCode();
-
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
-        return result!.Values.Single();
-    }
-
-    /// <summary>
-    /// For models without keys, manually supply the key/value pair(s)
-    /// </summary>
-    /// <param name="models"></param>
-    /// <returns>A list of (Input, Error) tuples.</returns>
-    /// <remarks>Exceptions are caught and returned in the result. Execution is not stopped.</remarks>
-    public async IAsyncEnumerable<(T Input, Exception? Error)> DeleteAsync(IEnumerable<T> models)
-    {
-        ArgumentNullException.ThrowIfNull(models);
-
-        foreach (var model in models)
-        {
-            yield return await RunAsync(model);
-        }
-
-        async Task<(T model, Exception? Error)> RunAsync(T model)
-        {
-            try
-            {
-                await DeleteAsync(model);
-                return (model, default);
-            }
-            catch (Exception ex)
-            {
-                return (model, ex);
-            }
-        }
     }
 
     /// <summary>
@@ -267,9 +141,75 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
     /// <param name="model">The model with key and readonly properties removed.</param>
     /// <param name="keys">The key/value pair of key(s)</param>
     /// <returns></returns>
-    public async Task DeleteAsync(T model, params (string Name, string Value)[] keys)
+    public async Task<T> UpdateAsync(T model, params string[] keys)
     {
-        await DeleteAsync(model, baseUri + string.Join("/", keys.Select(x => $"{x.Name}/{x.Value}")));
+        var keyProps = typeof(T)
+           .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+           .Where(p => keys.Contains(p.Name))
+           .Select(x => (x.Name, Value: x.GetValue(model)?.ToString() ?? string.Empty));
+
+        if (keyProps.Count() != keys.Length)
+        {
+            throw new ArgumentException("Not all keys properties found in model.", nameof(keys));
+        }
+
+        var parts = keyProps.Select(x => $"/{x.Name}/{x.Value}");
+        var url = baseUri + string.Join(string.Empty, parts);
+
+        return await InternalUpdateAsync(model, url);
+    }
+
+    /// <summary>
+    /// Updated the provided model
+    /// </summary>
+    /// <param name="model">The model to update, including keys</param>
+    /// <returns>The updated model</returns>
+    public async Task<T> UpdateAsync(T model)
+    {
+        return await InternalUpdateAsync(model, AssembleUrl(model));
+    }
+
+    private async Task<T> InternalUpdateAsync(T model, string url)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        Trace.WriteLine($"{nameof(UpdateAsync)} URL:{url}");
+
+        var json = Clone(model);
+        var response = await httpClient.PatchAsync(url, json);
+        if (!response.IsSuccessStatusCode)
+        {
+            Debugger.Break();
+        }
+
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+        return result!.Values.Single();
+    }
+
+    /// <summary>
+    /// For models without keys, manually supply the key/value pair(s)
+    /// </summary>
+    /// <param name="model">The model with key and readonly properties removed.</param>
+    /// <param name="keys">The key/value pair of key(s)</param>
+    /// <returns></returns>
+    public async Task DeleteAsync(T model, params string[] keys)
+    {
+        var keyProps = typeof(T)
+           .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+           .Where(p => keys.Contains(p.Name))
+           .Select(x => (x.Name, Value: x.GetValue(model)?.ToString() ?? string.Empty));
+
+        if (keyProps.Count() != keys.Length)
+        {
+            throw new ArgumentException("Not all keys properties found in model.", nameof(keys));
+        }
+
+        var parts = keyProps.Select(x => $"/{x.Name}/{x.Value}");
+        var url = baseUri + string.Join(string.Empty, parts);
+
+        await InternalDeleteAsync(model, url);
     }
 
     /// <summary>
@@ -279,10 +219,10 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
     /// <returns></returns>
     public async Task DeleteAsync(T model)
     {
-        await DeleteAsync(model, AssembleUrl(model));
+        await InternalDeleteAsync(model, AssembleUrl(model));
     }
 
-    private async Task DeleteAsync(T model, string url)
+    private async Task InternalDeleteAsync(T model, string url)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -307,30 +247,54 @@ public partial class RestHelper<T> : IRestHelper<T> where T : new()
             .Select(x => (x.Name, x.GetValue(model)?.ToString() ?? string.Empty));
     }
 
-    private object Clone(T model, bool removeKeys = true, bool removeComputedColumns = true)
+    private StringContent Clone(T model, bool removeKeys = true, bool removeReadOnlyProperties = true, string[]? otherPropertiesToRemove = null)
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        var props = model.GetType()
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Except(KeyProperties())
-            .Except(ReadonlyProperties());
+        var jsonString = JsonSerializer.Serialize(model);
+        var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString)!;
 
-        var clone = new ExpandoObject() as IDictionary<string, Object>;
-
-        foreach (var prop in props)
+        if (removeKeys)
         {
-            clone.Add(prop.Name, prop.GetValue(model)!);
+            var keys = KeyProperties();
+            foreach (var key in keys)
+            {
+                var jsonAttribute = key.GetCustomAttribute<JsonPropertyNameAttribute>();
+                jsonDictionary.Remove(jsonAttribute?.Name ?? key.Name);
+            }
         }
 
-        return clone;
+        if (removeReadOnlyProperties)
+        {
+            var roProps = ReadOnlyProperties();
+            foreach (var prop in roProps)
+            {
+                var jsonAttribute = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
+                jsonDictionary.Remove(jsonAttribute?.Name ?? prop.Name);
+            }
+        }
 
-        IEnumerable<PropertyInfo> ReadonlyProperties()
+        if (otherPropertiesToRemove is not null && otherPropertiesToRemove.Any())
+        {
+            foreach (var other in otherPropertiesToRemove)
+            {
+                var prop = model.GetType().GetProperty(other);
+                if (prop is not null)
+                {
+                    var jsonAttribute = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
+                    jsonDictionary.Remove(jsonAttribute?.Name ?? prop.Name);
+                }
+            }
+        }
+
+        var json = JsonSerializer.Serialize(jsonDictionary);
+        return new StringContent(json, Encoding.UTF8, "application/json");
+
+        IEnumerable<PropertyInfo> ReadOnlyProperties()
         {
             return typeof(T)
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => Attribute.IsDefined(p, typeof(DatabaseGeneratedAttribute))
-                    && (p.GetCustomAttributes(typeof(DatabaseGeneratedAttribute), true).FirstOrDefault()! as DatabaseGeneratedAttribute)?.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed);
+                .Where(p => Attribute.IsDefined(p, typeof(ReadOnlyAttribute)));
         }
 
         IEnumerable<PropertyInfo> KeyProperties()

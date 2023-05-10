@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 
+using DabHelpers;
+
 using Models.dbo;
 
 using Xunit;
@@ -23,12 +25,11 @@ internal class Program
 
         var insert = new Customers
         {
-            @Name = Guid.NewGuid().ToString(),
+            Name = Guid.NewGuid().ToString(),
             City = Guid.NewGuid().ToString(),
             State = Guid.NewGuid().ToString()
         };
-        var insertResult = await h.InsertAsync(new[] { insert }).ToArrayAsync();
-        var inserted = insertResult.First().Result!;
+        var inserted = await h.InsertAsync(insert);
 
         Assert.Equal(insert.Name, inserted.Name);
         Assert.Equal(insert.City, inserted.City);
@@ -37,22 +38,23 @@ internal class Program
 
         // second get that new one
 
-        Customers? getOne = await h.GetOneAsync(inserted);
+        Customers? getOne = await h.GetAsync(inserted);
 
         Assert.NotNull(getOne);
         Assert.Equivalent(inserted, getOne);
 
         // third, get the new one from list
 
-        var getMany1 = await h.GetManyAsync();
-        Customers? test = getMany1.Items.First(x => x.Id == inserted.Id);
+        var getMany1 = await h.GetAsync();
+        Customers? test = getMany1.Items.Single(x => x.Id == inserted.Id);
         Assert.Equivalent(inserted, test);
 
         // third, get the new one from special list
 
-        var getMany2 = await h.GetManyAsync(select: "Id", filter: $"Id eq {inserted.Id}");
-        test = getMany2.Items.First(x => x.Id == inserted.Id);
+        var getMany2 = await h.GetAsync(select: "Id,City", filter: $"Id eq {inserted.Id}");
+        test = getMany2.Items.Single(x => x.Id == inserted.Id);
         Assert.Equal(inserted.Id, test.Id);
+        Assert.NotNull(test.City);
         Assert.Null(test.Name);
 
         // fourth, update same record
@@ -64,22 +66,17 @@ internal class Program
             City = Guid.NewGuid().ToString(),
             State = Guid.NewGuid().ToString(),
         };
-        var updateResult = await h.UpdateAsync(new[] { update }).ToArrayAsync();
-        var updated = updateResult.First().Result!;
-        getOne = await h.GetOneAsync(updated);
+        var updated = await h.UpdateAsync(update);
+        getOne = await h.GetAsync(updated);
 
-        Assert.Equal(update.Name, updated.Name);
-        Assert.Equal(update.City, updated.City);
-        Assert.Equal(update.State, updated.State);
-        Assert.Equal(update.Id, updated.Id);
-
+        Assert.NotNull(updated);
         Assert.NotNull(getOne);
         Assert.Equivalent(updated, getOne);
 
         // fifth, delete that record
 
-        await h.DeleteAsync(new[] { updated }).ToArrayAsync();
-        getOne = await h.GetOneAsync(updated);
+        await h.DeleteAsync(updated);
+        getOne = await h.GetAsync(updated);
 
         Assert.Null(getOne);
 

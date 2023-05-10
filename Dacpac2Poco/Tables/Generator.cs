@@ -40,6 +40,16 @@ public static class Generator
                 code.AppendLine();
             }
 
+            if (attributes && column.IsPrimaryKey)
+            {
+                code.AppendLine($"        [Key]");
+            }
+
+            if (attributes && (column.IsComputed || column.IsIdentity))
+            {
+                code.AppendLine($"        [ReadOnly(true)]");
+            }
+
             var propName = Utilities.ToPascalCase(column.Name);
             if (attributes && propName != column.Name)
             {
@@ -51,19 +61,6 @@ public static class Generator
             var def = column.IsNullable ? "default!" : netType == typeof(System.String) ? "string.Empty" : "default";
             code.AppendLine($"        public {inlineType} @{propName} {{ get; set; }} = {def};");
         }
-
-        var keys = string.Join("", table.Columns.Where(x => x.IsPrimaryKey).Select(x => $"/{x.Name}/{{@{Utilities.ToPascalCase(x.Name)}}}"));
-        var remove = table.Columns.Where(x => x.IsPrimaryKey || x.IsComputed).Select(x => $"jsonDictionary.Remove(\"{x.Name}\");");
-        code.AppendLine($$"""
-
-                    public (string Url, string Json) ToJson()
-                    {
-                        var jsonString = JsonSerializer.Serialize(this);
-                        var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString)!;
-                        {{string.Join("\r\n            ", remove)}}
-                        return ($"{{keys}}", JsonSerializer.Serialize(jsonDictionary));
-                    }
-            """);
         code.AppendLine("    }");
     }
 }

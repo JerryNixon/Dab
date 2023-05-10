@@ -3,6 +3,9 @@
 using System.Diagnostics;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Models;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 namespace Models
 {
@@ -14,6 +17,7 @@ namespace Models.dbo
     [DebuggerDisplay("dbo.Customers (Id = {Id})")]
     public partial class Customers : Poco
     {
+        [Key]
         public Int32 @Id { get; set; } = default;
 
         public String? @Name { get; set; } = default!;
@@ -22,6 +26,7 @@ namespace Models.dbo
 
         public String @State { get; set; } = string.Empty;
 
+        [ReadOnly(true)]
         public string @Location { get; set; } = default!;
 
         public Decimal @SpecialRank { get; set; } = default;
@@ -31,15 +36,6 @@ namespace Models.dbo
 
         [JsonPropertyName("Very Weird Name")]
         public String? @VeryWeirdName { get; set; } = default!;
-
-        public (string Url, string Json) ToJson()
-        {
-            var jsonString = JsonSerializer.Serialize(this);
-            var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString)!;
-            jsonDictionary.Remove("Id");
-            jsonDictionary.Remove("Location");
-            return ($"/Id/{@Id}", JsonSerializer.Serialize(jsonDictionary));
-        }
     }
 
     [DebuggerDisplay("dbo.vCustomers")]
