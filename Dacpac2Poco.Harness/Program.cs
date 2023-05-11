@@ -14,12 +14,17 @@ internal partial class Program
         // var procs = procsReader.GetProcedures().ToArray();
 
         var generator = new Generator(tables, views);
-        var code = generator.Generate("Poco", true);
+        var code = generator.GeneratePoco("Poco", true);
+        var config = generator.GenerateConfig();
 
-        var path = "output.cs";
-        File.WriteAllText(path, code);
+        var pocoPath = "output.cs";
+        File.WriteAllText(pocoPath, code);
+
+        var configPath = "dab-config.json";
+        File.WriteAllText(configPath, config);
 
         try { "sample.dacpac.xml".OpenInVsCode(); } catch { "sample.dacpac.xml".OpenInNotepad(); }
-        try { path.OpenInVsCode(); } catch { path.OpenInNotepad(); }
+        try { pocoPath.OpenInVsCode(); } catch { pocoPath.OpenInNotepad(); }
+        try { configPath.OpenInVsCode(); } catch { configPath.OpenInNotepad(); }
     }
 }

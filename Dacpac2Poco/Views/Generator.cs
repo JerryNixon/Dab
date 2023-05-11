@@ -6,7 +6,7 @@ namespace Dac2Poco.Views;
 
 public static class Generator
 {
-    public static void Generate(ViewInfo view, StringBuilder code, bool attributes, bool methods, string? baseName)
+    public static void GeneratePoco(ViewInfo view, StringBuilder code, bool attributes, bool methods, string? baseName)
     {
         if (attributes)
         {

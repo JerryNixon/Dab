@@ -30,15 +30,38 @@
   },
   "entities": {
     "Customers": {
-      "source": "dbo.Customers",
+      "source": {
+        "type": "table",
+        "object": "[dbo].[Customers]",
+        "key-fields": [
+          "[Id]"
+        ]
+      },
       "permissions": [
         {
           "role": "anonymous",
           "actions": [
-            "*"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
-      ]
+      ],
+      "mappings": {
+        "Id": "id",
+        "Name": "name",
+        "City": "city",
+        "State": "state",
+        "Location": "location",
+        "SpecialRank": "specialrank",
+        "weirdName": "weirdname",
+        "Very Weird Name": "veryweirdname"
+      },
+      "rest": {
+        "path": "/customers"
+      },
+      "graphql": false
     }
   }
 }

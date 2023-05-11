@@ -19,7 +19,19 @@ public class Generator
         this.views = views;
     }
 
-    public string Generate(string? baseName = null, bool attributes = true, bool methods = true)
+    public string GenerateConfig(string? baseName = null, bool attributes = true, bool methods = true)
+    {
+        var code = new StringBuilder();
+
+        foreach (var table in tables)
+        {
+            Tables.Generator.GenerateConfig(table, code);
+        }
+
+        return code.ToString();
+    }
+
+    public string GeneratePoco(string? baseName = null, bool attributes = true, bool methods = true)
     {
         var schemas = tables.Select(x => x.Schema).Union(views.Select(x => x.Schema)).Distinct();
         var code = new StringBuilder();
@@ -65,7 +77,7 @@ public class Generator
                     code.AppendLine();
                 }
 
-                Tables.Generator.Generate(table, code, attributes, methods, baseName);
+                Tables.Generator.GeneratePoco(table, code, attributes, methods, baseName);
             }
 
             if (schemaTables.Any() && schemaViews.Any())
@@ -80,7 +92,7 @@ public class Generator
                     code.AppendLine();
                 }
 
-                Views.Generator.Generate(view, code, attributes, methods, baseName);
+                Views.Generator.GeneratePoco(view, code, attributes, methods, baseName);
             }
         }
         code.AppendLine("}");
