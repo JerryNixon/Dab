@@ -60,10 +60,19 @@
     <Folder Include="Snapshots" />
     <Folder Include="Views" />
     <Folder Include="Scripts" />
+    <Folder Include="Procedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\Customers.sql" />
     <Build Include="Views\vCustomers.sql" />
+    <Build Include="Tables\Lines.sql" />
+    <Build Include="Tables\Orders.sql" />
+    <Build Include="Tables\Products.sql" />
+    <Build Include="Tables\Sample.sql" />
+    <Build Include="Tables\SampleEdge1.sql" />
+    <Build Include="Tables\SampleEdge2.sql" />
+    <Build Include="Tables\SampleNode.sql" />
+    <Build Include="Procedures\GetCustomers.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Snapshots\SampleDb_20230510_10-55-26.dacpac" />
@@ -74,5 +83,8 @@
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\PreDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\PostDeployment.sql" />
   </ItemGroup>
 </Project>

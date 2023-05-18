@@ -3,9 +3,9 @@
   "data-source": {
     "database-type": "mssql",
     "options": {
-      "set-session-context": false
+      "set-session-context": true
     },
-    "connection-string": "Server=(localdb)\\MSSQLLocalDB;Database=SampleDb;User ID=DabLogin;Password=P@ssw0rd!;TrustServerCertificate=True;"
+    "connection-string": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DabDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
   },
   "runtime": {
     "rest": {
@@ -14,7 +14,7 @@
     },
     "graphql": {
       "allow-introspection": true,
-      "enabled": true,
+      "enabled": false,
       "path": "/graphql"
     },
     "host": {
@@ -34,7 +34,96 @@
         "type": "table",
         "object": "[dbo].[Customers]",
         "key-fields": [
-          "[Id]"
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "mappings": {
+        "City": "city",
+        "Id": "id",
+        "Location": "location",
+        "Name": "name",
+        "SpecialRank": "specialrank",
+        "State": "state"
+      },
+      "rest": {
+        "path": "/customers"
+      }
+    },
+    "Lines": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[Lines]",
+        "key-fields": [
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id": "id",
+        "OrderId": "orderid",
+        "PriceEach": "priceeach",
+        "ProductId": "productid",
+        "Quantity": "quantity"
+      },
+      "rest": {
+        "path": "/lines"
+      }
+    },
+    "Orders": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[Orders]",
+        "key-fields": [
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "mappings": {
+        "CustomerId": "customerid",
+        "Date": "date",
+        "Id": "id"
+      },
+      "rest": {
+        "path": "/orders"
+      }
+    },
+    "Products": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[Products]",
+        "key-fields": [
+          "Id"
         ]
       },
       "permissions": [
@@ -51,17 +140,103 @@
       "mappings": {
         "Id": "id",
         "Name": "name",
-        "City": "city",
-        "State": "state",
-        "Location": "location",
-        "SpecialRank": "specialrank",
-        "weirdName": "weirdname",
-        "Very Weird Name": "veryweirdname"
+        "Price": "price"
       },
       "rest": {
-        "path": "/customers"
+        "path": "/products"
+      }
+    },
+    "Sample": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[Sample]",
+        "key-fields": [
+          "Id1",
+          "Id2",
+          "Id3"
+        ]
       },
-      "graphql": false
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id1": "id1",
+        "Id2": "id2",
+        "Id3": "id3",
+        "Name": "name",
+        "UpperName": "uppername"
+      },
+      "rest": {
+        "path": "/sample"
+      }
+    },
+    "SampleNode": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[SampleNode]",
+        "key-fields": [
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "create",
+            "read",
+            "update",
+            "delete"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id": "id"
+      },
+      "rest": {
+        "path": "/samplenode"
+      }
+    },
+    "PageCustomers": {
+      "source": {
+        "type": "stored-procedure",
+        "object": "[dbo].[PageCustomers]",
+        "parameters": {
+          "StartIndex": "invalid",
+          "PageSize": "invalid"
+        }
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "mappings": {
+        "City": "city",
+        "Id": "id",
+        "Name": "name",
+        "State": "state"
+      },
+      "rest": {
+        "path": "/pagecustomers",
+        "methods": [
+          "post",
+          "get"
+        ]
+      },
+      "graphql": {
+        "operation": "mutation"
+      }
     }
   }
 }

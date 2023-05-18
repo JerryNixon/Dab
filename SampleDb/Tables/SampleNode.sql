@@ -1,0 +1,4 @@
+﻿CREATE TABLE [dbo].[SampleNode]
+(
+	[Id] INT NOT NULL PRIMARY KEY
+) AS NODE;

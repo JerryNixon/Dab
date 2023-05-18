@@ -1,0 +1,6 @@
+﻿CREATE TABLE Products
+(
+    Id INT PRIMARY KEY,
+    Name VARCHAR(50) NOT NULL,
+    Price MONEY NOT NULL,
+)
