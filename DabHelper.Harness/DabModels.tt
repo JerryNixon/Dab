@@ -1,5 +1,5 @@
 ﻿<#
-    var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=DabDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+    var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SampleDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 #>
 <#@ template    language    ="C#" #>
 <#@ assembly    name        ="System.Core" #>
@@ -10,6 +10,9 @@
 <#@ import      namespace   ="System.Data.SqlClient" #>
 <#@ import      namespace   ="System.Collections.Generic" #>
 <#@ import      namespace   ="System.Collections" #>
+<#@ assembly    name        ="System.Text.RegularExpressions" #>
+<#@ import      namespace   ="System.Text.RegularExpressions" #>
+
 <#@ output      extension   =".g.cs" #>
 // more info at https://aka.ms/dab
 
@@ -17,6 +20,7 @@ using System;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Models
@@ -52,8 +56,8 @@ namespace Models.<#= schema #>
     <#if (column.IsKey) 
     {#>[Key]
         <#}#><#if (column.IsComputed) {#>[ReadOnly(true)]
-        <#}#>[JsonPropertyName("<#=GetJsonName(column.Column)#>")]
-        public <#=column.NetType#> <#=Safe(column.Column)#> { get; set; } = default!;
+        <#}#><#if (GetJsonName(column.Column) != Safe(column.Column)) { #>[JsonPropertyName("<#=GetJsonName(column.Column)#>")]
+        <#}#>public <#=column.NetType#> <#=Safe(column.Column)#> { get; set; } = default!;
 
     <#}
         // this section is only valid for procedures
@@ -76,9 +80,20 @@ namespace Models.<#= schema #>
 <#}#>
 }<#}#><#+
 
-string GetJsonName(string name) => name.Trim('[', ']', '.').ToLower().Replace(" ", string.Empty);
+string GetJsonName(string name)
+{
+    string result = Regex.Replace(name, @"(\p{Lu})", "-$1");
+    result = Regex.Replace(result, @"[^\w]", "-");
+    result = result.Trim('-', '[', ']', '.', ' ').ToLower().Replace(" ", "-");
+    return Regex.Replace(result, @"-+", "-");
+}
 
-string Safe(string name) => "@" + name.Replace(" ", string.Empty).Trim('[', ']', '.', ' ');
+string Safe(string name)
+{
+    string safeName = Regex.Replace(name, @"\W+", " ");
+    safeName = Regex.Replace(safeName, @"\b(\w)(\w*)", match => match.Groups[1].Value.ToUpper() + match.Groups[2].Value);
+    return "@" + new string(safeName.Where(char.IsLetterOrDigit).ToArray());
+}
 
 IEnumerable<(string Schema, string Name, string @Type, string[] Params, string[] ParamSqlTypes, string[] ParamNetTypes, string Column, string SqlType, string NetType, bool IsKey, bool IsComputed)> GetCache(string connectionString)
 {

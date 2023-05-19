@@ -5,7 +5,7 @@
     "options": {
       "set-session-context": true
     },
-    "connection-string": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=DabDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+    "connection-string": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SampleDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
   },
   "runtime": {
     "rest": {
@@ -53,7 +53,7 @@
         "Id": "id",
         "Location": "location",
         "Name": "name",
-        "SpecialRank": "specialrank",
+        "SpecialRank": "special-rank",
         "State": "state"
       },
       "rest": {
@@ -81,9 +81,9 @@
       ],
       "mappings": {
         "Id": "id",
-        "OrderId": "orderid",
-        "PriceEach": "priceeach",
-        "ProductId": "productid",
+        "OrderId": "order-id",
+        "PriceEach": "price-each",
+        "ProductId": "product-id",
         "Quantity": "quantity"
       },
       "rest": {
@@ -110,7 +110,7 @@
         }
       ],
       "mappings": {
-        "CustomerId": "customerid",
+        "CustomerId": "customer-id",
         "Date": "date",
         "Id": "id"
       },
@@ -171,8 +171,12 @@
         "Id1": "id1",
         "Id2": "id2",
         "Id3": "id3",
+        "lowercase": "lowercase",
         "Name": "name",
-        "UpperName": "uppername"
+        "Super weird Name-here": "super-weird-name-here",
+        "UpperName": "upper-name",
+        "Very % strange-like # name @ ": "very-strange-like-name",
+        "Weird Name": "weird-name"
       },
       "rest": {
         "path": "/sample"
@@ -209,8 +213,8 @@
         "type": "stored-procedure",
         "object": "[dbo].[PageCustomers]",
         "parameters": {
-          "StartIndex": "invalid",
-          "PageSize": "invalid"
+          "PageSize": "",
+          "StartIndex": ""
         }
       },
       "permissions": [
@@ -229,6 +233,38 @@
       },
       "rest": {
         "path": "/pagecustomers",
+        "methods": [
+          "post",
+          "get"
+        ]
+      },
+      "graphql": {
+        "operation": "mutation"
+      }
+    },
+    "Top10Customers": {
+      "source": {
+        "type": "stored-procedure",
+        "object": "[dbo].[Top10Customers]"
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "execute"
+          ]
+        }
+      ],
+      "mappings": {
+        "City": "city",
+        "Id": "id",
+        "Location": "location",
+        "Name": "name",
+        "SpecialRank": "special-rank",
+        "State": "state"
+      },
+      "rest": {
+        "path": "/top10customers",
         "methods": [
           "post",
           "get"

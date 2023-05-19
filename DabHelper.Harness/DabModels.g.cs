@@ -1,9 +1,11 @@
-﻿// more info at https://aka.ms/dab
+﻿
+// more info at https://aka.ms/dab
 
 using System;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace Models
@@ -37,6 +39,36 @@ namespace Models.dbo
         }
     }
 
+    [DebuggerDisplay("dbo.Top10Customers (PageSize = {Parameters.PageSize}, StartIndex = {Parameters.StartIndex}) [procedure]")]
+    public class @Top10Customers : Poco 
+    {
+        [JsonPropertyName("city")]
+        public string @City { get; set; } = default!;
+
+        [JsonPropertyName("id")]
+        public int @Id { get; set; } = default!;
+
+        [JsonPropertyName("location")]
+        public string @Location { get; set; } = default!;
+
+        [JsonPropertyName("name")]
+        public string @Name { get; set; } = default!;
+
+        [JsonPropertyName("special-rank")]
+        public decimal @SpecialRank { get; set; } = default!;
+
+        [JsonPropertyName("state")]
+        public string @State { get; set; } = default!;
+
+    
+        public ParameterInfo Parameters { get; set; } = new();
+        public class ParameterInfo
+        {
+            public int? @PageSize { get; set; } = default!;
+            public int? @StartIndex { get; set; } = default!;
+        }
+    }
+
     [DebuggerDisplay("dbo.Customers (Id = {Id}) [table]")]
     public class @Customers : Poco 
     {
@@ -50,7 +82,7 @@ namespace Models.dbo
         [JsonPropertyName("name")]
         public string @Name { get; set; } = default!;
 
-        [JsonPropertyName("specialrank")]
+        [JsonPropertyName("special-rank")]
         public decimal @SpecialRank { get; set; } = default!;
 
         [JsonPropertyName("state")]
@@ -69,13 +101,13 @@ namespace Models.dbo
         [JsonPropertyName("id")]
         public int @Id { get; set; } = default!;
 
-        [JsonPropertyName("orderid")]
+        [JsonPropertyName("order-id")]
         public int @OrderId { get; set; } = default!;
 
-        [JsonPropertyName("priceeach")]
+        [JsonPropertyName("price-each")]
         public double @PriceEach { get; set; } = default!;
 
-        [JsonPropertyName("productid")]
+        [JsonPropertyName("product-id")]
         public int @ProductId { get; set; } = default!;
 
         [JsonPropertyName("quantity")]
@@ -90,7 +122,7 @@ namespace Models.dbo
         [JsonPropertyName("id")]
         public int @Id { get; set; } = default!;
 
-        [JsonPropertyName("customerid")]
+        [JsonPropertyName("customer-id")]
         public int @CustomerId { get; set; } = default!;
 
         [JsonPropertyName("date")]
@@ -128,11 +160,23 @@ namespace Models.dbo
         [JsonPropertyName("id3")]
         public int @Id3 { get; set; } = default!;
 
+        [JsonPropertyName("lowercase")]
+        public int? @Lowercase { get; set; } = default!;
+
         [JsonPropertyName("name")]
         public string @Name { get; set; } = default!;
 
+        [JsonPropertyName("super-weird-name-here")]
+        public string @SuperWeirdNameHere { get; set; } = default!;
+
+        [JsonPropertyName("very-strange-like-name")]
+        public string @VeryStrangeLikeName { get; set; } = default!;
+
+        [JsonPropertyName("weird-name")]
+        public string @WeirdName { get; set; } = default!;
+
         [ReadOnly(true)]
-        [JsonPropertyName("uppername")]
+        [JsonPropertyName("upper-name")]
         public string @UpperName { get; set; } = default!;
 
     }
@@ -155,7 +199,7 @@ namespace Models.dbo
     }
 
     [DebuggerDisplay("dbo.vCustomers (keyless) [view]")]
-    public class @vCustomers : Poco 
+    public class @VCustomers : Poco 
     {
         [JsonPropertyName("city")]
         public string @City { get; set; } = default!;
@@ -169,11 +213,14 @@ namespace Models.dbo
         [JsonPropertyName("name")]
         public string @Name { get; set; } = default!;
 
-        [JsonPropertyName("specialrank")]
+        [JsonPropertyName("special-rank")]
         public decimal @SpecialRank { get; set; } = default!;
 
         [JsonPropertyName("state")]
         public string @State { get; set; } = default!;
+
+        [JsonPropertyName("upper-name")]
+        public string @UpperName { get; set; } = default!;
 
     }
 

@@ -73,6 +73,7 @@
     <Build Include="Tables\SampleEdge2.sql" />
     <Build Include="Tables\SampleNode.sql" />
     <Build Include="Procedures\GetCustomers.sql" />
+    <Build Include="Procedures\Top10Customers.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Snapshots\SampleDb_20230510_10-55-26.dacpac" />

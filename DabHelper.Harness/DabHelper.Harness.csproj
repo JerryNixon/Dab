@@ -21,14 +21,14 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DabModels.g.cs</LastGenOutput>
     </None>
-    <None Update="DabScripts.g.ps">
+    <None Update="DabScripts.g.txt">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>DabScripts.tt</DependentUpon>
     </None>
     <None Update="DabScripts.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DabScripts.g.ps</LastGenOutput>
+      <LastGenOutput>DabScripts.g.txt</LastGenOutput>
     </None>
   </ItemGroup>
 
