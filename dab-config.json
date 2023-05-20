@@ -32,7 +32,7 @@
     "Customers": {
       "source": {
         "type": "table",
-        "object": "[dbo].[Customers]",
+        "object": "dbo.Customers",
         "key-fields": [
           "Id"
         ]
@@ -41,20 +41,17 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
       "mappings": {
-        "City": "city",
         "Id": "id",
-        "Location": "location",
         "Name": "name",
-        "SpecialRank": "special-rank",
-        "State": "state"
+        "City": "city",
+        "State": "state",
+        "Location": "location",
+        "SpecialRank": "special-rank"
       },
       "rest": {
         "path": "/customers"
@@ -63,7 +60,7 @@
     "Lines": {
       "source": {
         "type": "table",
-        "object": "[dbo].[Lines]",
+        "object": "dbo.Lines",
         "key-fields": [
           "Id"
         ]
@@ -72,19 +69,16 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
       "mappings": {
         "Id": "id",
-        "OrderId": "order-id",
-        "PriceEach": "price-each",
+        "Quantity": "quantity",
         "ProductId": "product-id",
-        "Quantity": "quantity"
+        "OrderId": "order-id",
+        "PriceEach": "price-each"
       },
       "rest": {
         "path": "/lines"
@@ -93,7 +87,7 @@
     "Orders": {
       "source": {
         "type": "table",
-        "object": "[dbo].[Orders]",
+        "object": "dbo.Orders",
         "key-fields": [
           "Id"
         ]
@@ -102,17 +96,14 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
       "mappings": {
-        "CustomerId": "customer-id",
+        "Id": "id",
         "Date": "date",
-        "Id": "id"
+        "CustomerId": "customer-id"
       },
       "rest": {
         "path": "/orders"
@@ -121,7 +112,7 @@
     "Products": {
       "source": {
         "type": "table",
-        "object": "[dbo].[Products]",
+        "object": "dbo.Products",
         "key-fields": [
           "Id"
         ]
@@ -130,10 +121,7 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
@@ -149,7 +137,7 @@
     "Sample": {
       "source": {
         "type": "table",
-        "object": "[dbo].[Sample]",
+        "object": "dbo.Sample",
         "key-fields": [
           "Id1",
           "Id2",
@@ -160,10 +148,7 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
@@ -171,21 +156,38 @@
         "Id1": "id1",
         "Id2": "id2",
         "Id3": "id3",
-        "lowercase": "lowercase",
         "Name": "name",
-        "Super weird Name-here": "super-weird-name-here",
         "UpperName": "upper-name",
+        "Weird Name": "weird-name",
+        "Super weird Name-here": "super-weird-name-here",
         "Very % strange-like # name @ ": "very-strange-like-name",
-        "Weird Name": "weird-name"
+        "lowercase": "lowercase"
       },
       "rest": {
         "path": "/sample"
       }
     },
+    "SampleEdgeTwo": {
+      "source": "dbo.SampleEdgeTwo",
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id": "id"
+      },
+      "rest": {
+        "path": "/sampleedgetwo"
+      }
+    },
     "SampleNode": {
       "source": {
         "type": "table",
-        "object": "[dbo].[SampleNode]",
+        "object": "dbo.SampleNode",
         "key-fields": [
           "Id"
         ]
@@ -194,10 +196,7 @@
         {
           "role": "anonymous",
           "actions": [
-            "create",
-            "read",
-            "update",
-            "delete"
+            "read"
           ]
         }
       ],
@@ -211,7 +210,7 @@
     "PageCustomers": {
       "source": {
         "type": "stored-procedure",
-        "object": "[dbo].[PageCustomers]",
+        "object": "dbo.PageCustomers]",
         "parameters": {
           "PageSize": "",
           "StartIndex": ""
@@ -226,9 +225,9 @@
         }
       ],
       "mappings": {
-        "City": "city",
         "Id": "id",
         "Name": "name",
+        "City": "city",
         "State": "state"
       },
       "rest": {
@@ -245,7 +244,7 @@
     "Top10Customers": {
       "source": {
         "type": "stored-procedure",
-        "object": "[dbo].[Top10Customers]"
+        "object": "dbo.Top10Customers]"
       },
       "permissions": [
         {
@@ -256,12 +255,12 @@
         }
       ],
       "mappings": {
-        "City": "city",
         "Id": "id",
-        "Location": "location",
         "Name": "name",
-        "SpecialRank": "special-rank",
-        "State": "state"
+        "City": "city",
+        "State": "state",
+        "Location": "location",
+        "SpecialRank": "special-rank"
       },
       "rest": {
         "path": "/top10customers",
