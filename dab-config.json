@@ -32,7 +32,7 @@
     "Customers": {
       "source": {
         "type": "table",
-        "object": "dbo.Customers",
+        "object": "[dbo].[Customers]",
         "key-fields": [
           "Id"
         ]
@@ -54,13 +54,13 @@
         "SpecialRank": "special-rank"
       },
       "rest": {
-        "path": "/customers"
+        "path": "/?$#&customers"
       }
     },
     "Lines": {
       "source": {
         "type": "table",
-        "object": "dbo.Lines",
+        "object": "[dbo].[Lines]",
         "key-fields": [
           "Id"
         ]
@@ -81,13 +81,13 @@
         "PriceEach": "price-each"
       },
       "rest": {
-        "path": "/lines"
+        "path": "/?$#&lines"
       }
     },
     "Orders": {
       "source": {
         "type": "table",
-        "object": "dbo.Orders",
+        "object": "[dbo].[Orders]",
         "key-fields": [
           "Id"
         ]
@@ -106,13 +106,13 @@
         "CustomerId": "customer-id"
       },
       "rest": {
-        "path": "/orders"
+        "path": "/?$#&orders"
       }
     },
     "Products": {
       "source": {
         "type": "table",
-        "object": "dbo.Products",
+        "object": "[dbo].[Products]",
         "key-fields": [
           "Id"
         ]
@@ -131,13 +131,13 @@
         "Price": "price"
       },
       "rest": {
-        "path": "/products"
+        "path": "/?$#&products"
       }
     },
     "Sample": {
       "source": {
         "type": "table",
-        "object": "dbo.Sample",
+        "object": "[dbo].[Sample]",
         "key-fields": [
           "Id1",
           "Id2",
@@ -164,30 +164,13 @@
         "lowercase": "lowercase"
       },
       "rest": {
-        "path": "/sample"
+        "path": "/?$#&sample"
       }
     },
     "SampleEdgeTwo": {
-      "source": "dbo.SampleEdgeTwo",
-      "permissions": [
-        {
-          "role": "anonymous",
-          "actions": [
-            "read"
-          ]
-        }
-      ],
-      "mappings": {
-        "Id": "id"
-      },
-      "rest": {
-        "path": "/sampleedgetwo"
-      }
-    },
-    "SampleNode": {
       "source": {
         "type": "table",
-        "object": "dbo.SampleNode",
+        "object": "[dbo].[SampleEdgeTwo]",
         "key-fields": [
           "Id"
         ]
@@ -204,13 +187,65 @@
         "Id": "id"
       },
       "rest": {
-        "path": "/samplenode"
+        "path": "/?$#&sampleedgetwo"
+      }
+    },
+    "SampleNode": {
+      "source": {
+        "type": "table",
+        "object": "[dbo].[SampleNode]",
+        "key-fields": [
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id": "id"
+      },
+      "rest": {
+        "path": "/?$#&samplenode"
+      }
+    },
+    "vCustomers": {
+      "source": {
+        "type": "view",
+        "object": "[dbo].[vCustomers]",
+        "key-fields": [
+          "Id"
+        ]
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            "read"
+          ]
+        }
+      ],
+      "mappings": {
+        "Id": "id",
+        "Name": "name",
+        "City": "city",
+        "State": "state",
+        "Location": "location",
+        "SpecialRank": "special-rank",
+        "UpperName": "upper-name"
+      },
+      "rest": {
+        "path": "/?$#&vcustomers"
       }
     },
     "PageCustomers": {
       "source": {
         "type": "stored-procedure",
-        "object": "dbo.PageCustomers]",
+        "object": "[dbo].[PageCustomers]",
         "parameters": {
           "PageSize": "",
           "StartIndex": ""
@@ -231,7 +266,7 @@
         "State": "state"
       },
       "rest": {
-        "path": "/pagecustomers",
+        "path": "/?$#&pagecustomers",
         "methods": [
           "post",
           "get"
@@ -244,7 +279,7 @@
     "Top10Customers": {
       "source": {
         "type": "stored-procedure",
-        "object": "dbo.Top10Customers]"
+        "object": "[dbo].[Top10Customers]"
       },
       "permissions": [
         {
@@ -263,7 +298,7 @@
         "SpecialRank": "special-rank"
       },
       "rest": {
-        "path": "/top10customers",
+        "path": "/?$#&top10customers",
         "methods": [
           "post",
           "get"
