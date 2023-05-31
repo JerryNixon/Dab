@@ -1,14 +1,8 @@
 using DabHelpers;
 
-using Microsoft.VisualStudio.TestPlatform.Utilities;
-
 using Models.dbo;
 
-using System.Diagnostics;
-using System.Reflection;
-
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace DabHelper.Tests
 {
