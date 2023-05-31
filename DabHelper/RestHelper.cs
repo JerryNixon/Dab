@@ -13,12 +13,15 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Nodes;
+using DabHelper.Library;
 
 namespace DabHelpers;
 
 public partial class RestHelper<T> where T : new()
 {
     private readonly string baseUri;
+    private readonly string? restName;
     private readonly HttpClient httpClient;
 
     public RestHelper(string baseUri, HttpClient? httpClient = null)
@@ -40,6 +43,7 @@ public partial class RestHelper<T> where T : new()
         string? select = null, string? filter = null, string? orderby = null, int? first = null, int? after = null)
     {
         var url = CombineQuerystring();
+
         Trace.WriteLine($"{nameof(GetAsync)} URL:{url}");
 
         var response = await httpClient.GetAsync(url);
@@ -96,10 +100,11 @@ public partial class RestHelper<T> where T : new()
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        var url = AssembleUrl(model);
+        var url = model.ToUriWithKeys(baseUri);
         Trace.WriteLine($"{nameof(GetAsync)} URL:{url}");
 
         var response = await httpClient.GetAsync(url);
+
         if (!response.IsSuccessStatusCode)
         {
             Debugger.Break();
@@ -108,6 +113,12 @@ public partial class RestHelper<T> where T : new()
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+
+        if (result is null)
+        {
+            throw new Exception("Response content is invalid.");
+        }
+
         return result!.Values.SingleOrDefault();
     }
 
@@ -119,11 +130,14 @@ public partial class RestHelper<T> where T : new()
     /// <returns>Returns the inserted record</returns>
     public async Task<T> InsertAsync(T model, params string[] propertiesToRemove)
     {
-        EnsureValidModel(model);
+        ArgumentNullException.ThrowIfNull(model);
+
         Trace.WriteLine($"{nameof(InsertAsync)} URL:{baseUri}");
 
-        var json = Clone(model, removeKeys: true, removeReadOnlyProperties: true, otherPropertiesToRemove: propertiesToRemove);
-        var response = await httpClient.PostAsync(baseUri, json);
+        var clone = Clone(model!, removeKeys: true, removeReadOnly: true, removeOthers: propertiesToRemove);
+        var content = clone.ToStringContent();
+        var response = await httpClient.PostAsync(baseUri, content);
+
         if (!response.IsSuccessStatusCode)
         {
             Debugger.Break();
@@ -132,6 +146,22 @@ public partial class RestHelper<T> where T : new()
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+
+        if (result is null)
+        {
+            throw new Exception("Response content is invalid.");
+        }
+
+        if (!result.Values.Any())
+        {
+            throw new Exception("Response returned no record.");
+        }
+
+        if (result.Values.Count() > 1)
+        {
+            throw new Exception("Response returned more than one record.");
+        }
+
         return result!.Values.Single();
     }
 
@@ -141,22 +171,13 @@ public partial class RestHelper<T> where T : new()
     /// <param name="model">The model with key and readonly properties removed.</param>
     /// <param name="keys">The key/value pair of key(s)</param>
     /// <returns></returns>
-    public async Task<T> UpdateAsync(T model, params string[] keys)
+    public async Task<T> UpdateAsync(T model, string[] keys, params string[] updateOnlyThese)
     {
-        var keyProps = typeof(T)
-           .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-           .Where(p => keys.Contains(p.Name))
-           .Select(x => (x.Name, Value: x.GetValue(model)?.ToString() ?? string.Empty));
+        ArgumentNullException.ThrowIfNull(model);
 
-        if (keyProps.Count() != keys.Length)
-        {
-            throw new ArgumentException("Not all keys properties found in model.", nameof(keys));
-        }
-
-        var parts = keyProps.Select(x => $"/{x.Name}/{x.Value}");
-        var url = baseUri + string.Join(string.Empty, parts);
-
-        return await InternalUpdateAsync(model, url);
+        var props = model.GetProperties().Where(p => keys.Contains(p.Name));
+        var url = model.ToUriWithKeys(baseUri, props);
+        return await InternalUpdateAsync(model, url, updateOnlyThese);
     }
 
     /// <summary>
@@ -164,19 +185,33 @@ public partial class RestHelper<T> where T : new()
     /// </summary>
     /// <param name="model">The model to update, including keys</param>
     /// <returns>The updated model</returns>
-    public async Task<T> UpdateAsync(T model)
+    public async Task<T> UpdateAsync(T model, params string[] updateOnlyThese)
     {
-        return await InternalUpdateAsync(model, AssembleUrl(model));
+        ArgumentNullException.ThrowIfNull(model);
+
+        var url = model.ToUriWithKeys(baseUri);
+        return await InternalUpdateAsync(model, url, updateOnlyThese);
     }
 
-    private async Task<T> InternalUpdateAsync(T model, string url)
+    private async Task<T> InternalUpdateAsync(T? model, Uri url, params string[] updateOnlyThese)
     {
         ArgumentNullException.ThrowIfNull(model);
 
         Trace.WriteLine($"{nameof(UpdateAsync)} URL:{url}");
 
-        var json = Clone(model);
-        var response = await httpClient.PatchAsync(url, json);
+        List<PropertyInfo> remove = new();
+        if (updateOnlyThese.Any())
+        {
+            var keys = model.GetKeyProperties();
+            var onlyThese = model.GetProperties(updateOnlyThese);
+            var custom = model.GetProperties().Where(p => !onlyThese.Contains(p) && !keys.Contains(p));
+            remove.AddRange(custom);
+        }
+
+        var clone = Clone(model, removeKeys: true, removeReadOnly: true, removeOthers: remove.Select(x => x.Name).ToArray());
+        var content = clone.ToStringContent();
+        var response = await httpClient.PatchAsync(url, content);
+
         if (!response.IsSuccessStatusCode)
         {
             Debugger.Break();
@@ -185,6 +220,22 @@ public partial class RestHelper<T> where T : new()
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+
+        if (result is null)
+        {
+            throw new Exception("Response content is invalid.");
+        }
+
+        if (!result.Values.Any())
+        {
+            throw new Exception("Response returned no record.");
+        }
+
+        if (result.Values.Count() > 1)
+        {
+            throw new Exception("Response returned more than one record.");
+        }
+
         return result!.Values.Single();
     }
 
@@ -196,19 +247,10 @@ public partial class RestHelper<T> where T : new()
     /// <returns></returns>
     public async Task DeleteAsync(T model, params string[] keys)
     {
-        var keyProps = typeof(T)
-           .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-           .Where(p => keys.Contains(p.Name))
-           .Select(x => (x.Name, Value: x.GetValue(model)?.ToString() ?? string.Empty));
+        ArgumentNullException.ThrowIfNull(model);
 
-        if (keyProps.Count() != keys.Length)
-        {
-            throw new ArgumentException("Not all keys properties found in model.", nameof(keys));
-        }
-
-        var parts = keyProps.Select(x => $"/{x.Name}/{x.Value}");
-        var url = baseUri + string.Join(string.Empty, parts);
-
+        var keyProps = model.GetProperties(keys);
+        var url = model.ToUriWithKeys(baseUri, keyProps);
         await InternalDeleteAsync(model, url);
     }
 
@@ -219,16 +261,19 @@ public partial class RestHelper<T> where T : new()
     /// <returns></returns>
     public async Task DeleteAsync(T model)
     {
-        await InternalDeleteAsync(model, AssembleUrl(model));
+        ArgumentNullException.ThrowIfNull(model);
+
+        await InternalDeleteAsync(model, model.ToUriWithKeys(baseUri));
     }
 
-    private async Task InternalDeleteAsync(T model, string url)
+    private async Task InternalDeleteAsync(T model, Uri url)
     {
         ArgumentNullException.ThrowIfNull(model);
 
         Trace.WriteLine($"{nameof(DeleteAsync)} URL:{url}");
 
         var response = await httpClient.DeleteAsync(url);
+
         if (!response.IsSuccessStatusCode)
         {
             Debugger.Break();
@@ -237,106 +282,30 @@ public partial class RestHelper<T> where T : new()
         response.EnsureSuccessStatusCode();
     }
 
-    private IEnumerable<(string Name, string Value)> GetKeyPropertiesWithValues(T model)
+    private Dictionary<string, JsonElement> Clone(object model, bool removeKeys, bool removeReadOnly, params string[] removeOthers)
     {
-        ArgumentNullException.ThrowIfNull(model);
+        var remove = new List<PropertyInfo>();
 
-        return typeof(T)
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => Attribute.IsDefined(p, typeof(KeyAttribute)))
-            .Select(x => (x.Name, x.GetValue(model)?.ToString() ?? string.Empty));
-    }
+        if (removeReadOnly)
+        {
+            remove.AddRange(model.GetReadOnlyProperties());
+        }
 
-    private StringContent Clone(T model, bool removeKeys = true, bool removeReadOnlyProperties = true, string[]? otherPropertiesToRemove = null)
-    {
-        ArgumentNullException.ThrowIfNull(model);
-
-        var jsonString = JsonSerializer.Serialize(model);
-        var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(jsonString)!;
+        if (removeOthers.Any())
+        {
+            remove.AddRange(model.GetProperties(removeOthers));
+        }
 
         if (removeKeys)
         {
-            var keys = KeyProperties();
-            foreach (var key in keys)
-            {
-                var jsonAttribute = key.GetCustomAttribute<JsonPropertyNameAttribute>();
-                jsonDictionary.Remove(jsonAttribute?.Name ?? key.Name);
-            }
+            remove.AddRange(model.GetKeyProperties());
         }
-
-        if (removeReadOnlyProperties)
+        else
         {
-            var roProps = ReadOnlyProperties();
-            foreach (var prop in roProps)
-            {
-                var jsonAttribute = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
-                jsonDictionary.Remove(jsonAttribute?.Name ?? prop.Name);
-            }
+            var keys = model.GetKeyProperties();
+            remove.RemoveAll(x => keys.Contains(x));
         }
 
-        if (otherPropertiesToRemove is not null && otherPropertiesToRemove.Any())
-        {
-            foreach (var other in otherPropertiesToRemove)
-            {
-                var prop = model.GetType().GetProperty(other);
-                if (prop is not null)
-                {
-                    var jsonAttribute = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
-                    jsonDictionary.Remove(jsonAttribute?.Name ?? prop.Name);
-                }
-            }
-        }
-
-        var json = JsonSerializer.Serialize(jsonDictionary);
-        return new StringContent(json, Encoding.UTF8, "application/json");
-
-        IEnumerable<PropertyInfo> ReadOnlyProperties()
-        {
-            return typeof(T)
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => Attribute.IsDefined(p, typeof(ReadOnlyAttribute)));
-        }
-
-        IEnumerable<PropertyInfo> KeyProperties()
-        {
-            return typeof(T)
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => Attribute.IsDefined(p, typeof(KeyAttribute)));
-        }
-    }
-
-    private IEnumerable<(string Name, string Value)> EnsureValidModel(T model)
-    {
-        ArgumentNullException.ThrowIfNull(nameof(model));
-
-        var keys = GetKeyPropertiesWithValues(model);
-
-        if (!keys.Any())
-        {
-            throw new ArgumentException("At least one key is required.");
-        }
-
-        if (keys.Any(x => string.IsNullOrEmpty(x.Value)))
-        {
-            throw new ArgumentException($"All keys must have values in: {typeof(T)}", nameof(model));
-        }
-
-        return keys;
-    }
-
-    private string AssembleUrl(T model)
-    {
-        var keys = EnsureValidModel(model);
-
-        var builder = new StringBuilder(baseUri);
-
-        foreach (var key in keys)
-        {
-            var name = HttpUtility.UrlEncode(key.Name);
-            var value = HttpUtility.UrlEncode(key.Value.ToString());
-            builder.Append($"/{name}/{value}");
-        }
-
-        return builder.ToString();
+        return model.CloneWithout(remove);
     }
 }

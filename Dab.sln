@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DabHelper.Models", "DabHelper.Models\DabHelper.Models.csproj", "{B42B3891-3D29-48F1-AF35-9748678BC195}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{1F6B700E-FAC1-468E-8F8E-5FD359647D58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F6B700E-FAC1-468E-8F8E-5FD359647D58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F6B700E-FAC1-468E-8F8E-5FD359647D58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B42B3891-3D29-48F1-AF35-9748678BC195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B42B3891-3D29-48F1-AF35-9748678BC195}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B42B3891-3D29-48F1-AF35-9748678BC195}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B42B3891-3D29-48F1-AF35-9748678BC195}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{40BE8040-C8D0-4ADB-B8E0-6D9D72A336BE} = {9EB52FFA-B546-4F5A-A74A-40566529E716}
 		{00430C51-7990-4022-8B19-910F74E813C8} = {9EB52FFA-B546-4F5A-A74A-40566529E716}
 		{1F6B700E-FAC1-468E-8F8E-5FD359647D58} = {C9A4AAFD-910C-49DD-907A-8520269B7050}
+		{B42B3891-3D29-48F1-AF35-9748678BC195} = {9EB52FFA-B546-4F5A-A74A-40566529E716}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2A1B790B-3276-4A0F-B033-84918219121C}

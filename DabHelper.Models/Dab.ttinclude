@@ -1,5 +1,5 @@
 ﻿<#
-    var connectionString = @"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=SampleDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+    var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=SampleDb;User ID=DabLogin;Password=P@ssw0rd!;TrustServerCertificate=True;";
 #>
 <#@ template    language    ="C#" #>
 <#@ assembly    name        ="System.Core" #>
@@ -14,21 +14,34 @@
 <#@ import      namespace   ="System.Text.RegularExpressions" #>
 <#@ assembly    name        ="System.Web" #>
 <#@ import      namespace   ="System.Web" #>
+<#@ assembly    name        ="System.Globalization" #>
+<#@ import      namespace   ="System.Globalization" #>
+
 <#+
 
-static string GetJsonName(string name)
+static string GetMappingName(string name)
 {
-    string result = Regex.Replace(name, @"(\p{Lu})", "-$1");
-    result = Regex.Replace(result, @"[^\w]", "-");
-    result = result.Trim('-', '[', ']', '.', ' ').ToLower().Replace(" ", "-");
-    return Regex.Replace(result, @"-+", "-");
+    string result = Regex.Replace(name, @"(?<=\p{Ll})(\p{Lu})", "$1");
+    result = Regex.Replace(result, @"[^\w]+", "");
+    result = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(result);
+    result = result.Replace(" ", "");
+    return result;
 }
 
-static string GetSafeName(string name)
+static string GetNetName(string name)
 {
     string safeName = Regex.Replace(name, @"\W+", " ");
     safeName = Regex.Replace(safeName, @"\b(\w)(\w*)", match => match.Groups[1].Value.ToUpper() + match.Groups[2].Value);
-    return "@" + new string(safeName.Where(char.IsLetterOrDigit).ToArray());
+    safeName = new string(safeName.Where(char.IsLetterOrDigit).ToArray());
+    return safeName;
+}
+
+static string GetRestName(string name, string schema = null)
+{
+    string fullName = (schema is null) ? name : $"{schema}.{name}";
+    string safeName = Regex.Replace(fullName, @"[^\p{Ll}\p{Lu}\p{Lt}\p{Lm}\p{Lo}\p{Nd}\p{Nl}\p{Pc}\p{Cf}]", "");
+    safeName = Uri.EscapeDataString(safeName.ToLower());
+    return safeName;
 }
 
 public enum DboType 
@@ -42,7 +55,7 @@ public class DboInfo
 {
     public string Schema;
     public string Name;
-    public string CsharpName => GetSafeName(Name);
+    public string CsharpName => GetNetName(Name);
     public string Source => $"[{Schema}].[{Name}]";
     public string Label;
     public DboType Type;
@@ -56,16 +69,16 @@ public class DboInfo
 public class ParameterInfo
 {
     public string Name;
-    public string CsharpName => GetSafeName(Name);
-    public string JsonName => GetJsonName(Name);
+    public string CsharpName => GetNetName(Name);
+    public string JsonName => GetMappingName(Name);
     public string NetType;
 }
 
 public class ColumnInfo
 {
     public string Name;
-    public string CsharpName => GetSafeName(Name);
-    public string JsonName => GetJsonName(Name);
+    public string CsharpName => GetNetName(Name);
+    public string JsonName => GetMappingName(Name);
     public string NetType;
     public bool IsKey;
     public bool MaybeKey;
@@ -103,7 +116,8 @@ IEnumerable<DboInfo> GetDbInfo(string connectionString)
             var colMaybeKey = reader["inferred_key"].ToString().Split(',').Select(x => bool.Parse(x)).ToArray();
             var colIsComputed = reader["is_computed"].ToString().Split(',').Select(x => bool.Parse(x)).ToArray();
 
-            dbo.FieldMap = string.Join(",", colNames.Where(x => !string.IsNullOrEmpty(x)).Select(x => $"{x}:{GetJsonName(x)}"));
+            var map = colNames.Where(x => !string.IsNullOrEmpty(x)).Select(x => $"{x}:{GetMappingName(x)}");
+            dbo.FieldMap = string.Join(",", map);
             dbo.Columns = colNames
                 .Zip(colNetTypes, (n, t) => new { Name = n, NetType = t })
                 .Zip(colIsKey, (z, k) => new { z.Name, z.NetType, IsKey = k })
@@ -129,7 +143,7 @@ IEnumerable<DboInfo> GetDbInfo(string connectionString)
         foreach (var dbo in list)
         {
             dbo.Label = (schemas == 1) ? dbo.Name : $"{dbo.Schema}.{dbo.Name}";
-            dbo.RestPath = "?$#&" + HttpUtility.UrlEncode(((schemas == 1) ? dbo.Name : $"{dbo.Schema}.{dbo.Name}").ToLower());
+            dbo.RestPath = GetRestName(dbo.Name, (schemas == 1) ? null : dbo.Schema);
         }
 
         return list;
@@ -206,7 +220,7 @@ SELECT
   STRING_AGG(TYPE_NAME(c.system_type_id), ',') AS column_sql_types,
   STRING_AGG(CONCAT(ctypes.net_type, CASE WHEN c.is_nullable = 1 THEN '?' END), ',') AS column_net_types,    
   STRING_AGG(CASE WHEN ic.column_id IS NOT NULL THEN 'true' ELSE 'false' END, ',') AS primary_key,
-  STRING_AGG(CASE WHEN cc.name IS NOT NULL THEN 'true' ELSE 'false' END, ',') AS is_computed,
+  STRING_AGG(CASE WHEN cc.name IS NOT NULL THEN 'true' WHEN c.is_identity = 1 THEN 'true' ELSE 'false' END, ',') AS is_computed,
   STRING_AGG(CASE WHEN c.name LIKE '%id' OR c.name LIKE 'id%' OR c.name LIKE '%pk%' OR c.name LIKE '%uid%' OR c.name LIKE '%key%' THEN 'true' ELSE 'false' END, ',') AS inferred_key
 FROM sys.tables t
 JOIN sys.schemas s ON t.schema_id = s.schema_id

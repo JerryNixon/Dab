@@ -1,8 +1,13 @@
 ﻿<#@ include file="Dab.ttinclude" #>
 <#@ template language="C#" #>
 <#@ output extension=".g.txt" #>
+
+#dotnet tool install --global Microsoft.DataApiBuilder 
+#dotnet tool update --global Microsoft.DataApiBuilder 
+
 del dab-config.json
-dab init --config "dab-config.json" --graphql.disabled "true" --host-mode development --database-type mssql --set-session-context true --connection-string "<#=connectionString#>"
+# dab init --config "dab-config.json" --graphql.disabled "true" --host-mode development --database-type mssql --set-session-context true --connection-string "<#=connectionString#>"
+dab init --config "dab-config.json" --graphql.disabled "true" --database-type mssql --connection-string "<#=connectionString#>"
 
 <#
     var Cache = GetDbInfo(connectionString);
@@ -15,7 +20,7 @@ dab init --config "dab-config.json" --graphql.disabled "true" --host-mode develo
             keys = dbo.KeyColumns.Any() ? "--source.key-fields \"" + keys + "\"" : string.Empty;
         }
 #>
-dab add "<#=dbo.Label#>" --config "dab-config.json" --source "<#=dbo.Source#>" --source.type "<#=dbo.Type#>" <#=keys#> --rest "<#=dbo.RestPath#>" --permissions "anonymous:read"
+dab add "<#=dbo.Label#>" --config "dab-config.json" --source "<#=dbo.Source#>" --source.type "<#=dbo.Type#>" <#=keys#> --rest "<#=dbo.RestPath#>" --permissions "anonymous:create,read,update,delete"
 dab update "<#=dbo.Label#>" --config "dab-config.json" --map "<#=dbo.FieldMap#>"
 
 <#}

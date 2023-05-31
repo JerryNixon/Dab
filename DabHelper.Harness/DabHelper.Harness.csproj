@@ -13,35 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DabHelper.Models\DabHelper.Models.csproj" />
     <ProjectReference Include="..\DabHelper\DabHelper.Library.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DabModels.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DabModels.g.cs</LastGenOutput>
-    </None>
-    <None Update="DabScripts.g.txt">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DabScripts.tt</DependentUpon>
-    </None>
-    <None Update="DabScripts.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>DabScripts.g.txt</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="DabModels.g.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DabModels.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
 
 </Project>

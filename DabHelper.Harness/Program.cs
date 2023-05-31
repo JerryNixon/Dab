@@ -19,7 +19,7 @@ internal class Program
          dab start
         */
 
-        var h = new DabHelpers.RestHelper<Customers>("https://localhost:5001/api/Customers");
+        var h = new DabHelpers.RestHelper<Customers>("http://localhost:5000/api/customers");
 
         // first, create new
 

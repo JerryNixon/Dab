@@ -3,9 +3,9 @@
   "data-source": {
     "database-type": "mssql",
     "options": {
-      "set-session-context": true
+      "set-session-context": false
     },
-    "connection-string": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=SampleDb;Integrated Security=True;Connect Timeout=60;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+    "connection-string": "Server=(localdb)\\MSSQLLocalDB;Database=SampleDb;User ID=DabLogin;Password=P@ssw0rd!;TrustServerCertificate=True;"
   },
   "runtime": {
     "rest": {
@@ -18,7 +18,7 @@
       "path": "/graphql"
     },
     "host": {
-      "mode": "development",
+      "mode": "production",
       "cors": {
         "origins": [],
         "allow-credentials": false
@@ -41,20 +41,23 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Name": "name",
-        "City": "city",
-        "State": "state",
-        "Location": "location",
-        "SpecialRank": "special-rank"
+        "Id": "Id",
+        "Name": "Name",
+        "City": "City",
+        "State": "State",
+        "Location": "Location",
+        "SpecialRank": "Specialrank"
       },
       "rest": {
-        "path": "/?$#&customers"
+        "path": "/customers"
       }
     },
     "Lines": {
@@ -69,19 +72,22 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Quantity": "quantity",
-        "ProductId": "product-id",
-        "OrderId": "order-id",
-        "PriceEach": "price-each"
+        "Id": "Id",
+        "Quantity": "Quantity",
+        "ProductId": "Productid",
+        "OrderId": "Orderid",
+        "PriceEach": "Priceeach"
       },
       "rest": {
-        "path": "/?$#&lines"
+        "path": "/lines"
       }
     },
     "Orders": {
@@ -96,17 +102,20 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Date": "date",
-        "CustomerId": "customer-id"
+        "Id": "Id",
+        "Date": "Date",
+        "CustomerId": "Customerid"
       },
       "rest": {
-        "path": "/?$#&orders"
+        "path": "/orders"
       }
     },
     "Products": {
@@ -121,17 +130,20 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Name": "name",
-        "Price": "price"
+        "Id": "Id",
+        "Name": "Name",
+        "Price": "Price"
       },
       "rest": {
-        "path": "/?$#&products"
+        "path": "/products"
       }
     },
     "Sample": {
@@ -148,23 +160,26 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id1": "id1",
-        "Id2": "id2",
-        "Id3": "id3",
-        "Name": "name",
-        "UpperName": "upper-name",
-        "Weird Name": "weird-name",
-        "Super weird Name-here": "super-weird-name-here",
-        "Very % strange-like # name @ ": "very-strange-like-name",
-        "lowercase": "lowercase"
+        "Id1": "Id1",
+        "Id2": "Id2",
+        "Id3": "Id3",
+        "Name": "Name",
+        "UpperName": "Uppername",
+        "Weird Name": "Weirdname",
+        "Super weird Name-here": "Superweirdnamehere",
+        "Very % strange-like # name @ ": "Verystrangelikename",
+        "lowercase": "Lowercase"
       },
       "rest": {
-        "path": "/?$#&sample"
+        "path": "/sample"
       }
     },
     "SampleEdgeTwo": {
@@ -179,15 +194,18 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id"
+        "Id": "Id"
       },
       "rest": {
-        "path": "/?$#&sampleedgetwo"
+        "path": "/sampleedgetwo"
       }
     },
     "SampleNode": {
@@ -202,15 +220,18 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id"
+        "Id": "Id"
       },
       "rest": {
-        "path": "/?$#&samplenode"
+        "path": "/samplenode"
       }
     },
     "vCustomers": {
@@ -225,21 +246,24 @@
         {
           "role": "anonymous",
           "actions": [
-            "read"
+            "create",
+            "read",
+            "update",
+            "delete"
           ]
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Name": "name",
-        "City": "city",
-        "State": "state",
-        "Location": "location",
-        "SpecialRank": "special-rank",
-        "UpperName": "upper-name"
+        "Id": "Id",
+        "Name": "Name",
+        "City": "City",
+        "State": "State",
+        "Location": "Location",
+        "SpecialRank": "Specialrank",
+        "UpperName": "Uppername"
       },
       "rest": {
-        "path": "/?$#&vcustomers"
+        "path": "/vcustomers"
       }
     },
     "PageCustomers": {
@@ -260,13 +284,13 @@
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Name": "name",
-        "City": "city",
-        "State": "state"
+        "Id": "Id",
+        "Name": "Name",
+        "City": "City",
+        "State": "State"
       },
       "rest": {
-        "path": "/?$#&pagecustomers",
+        "path": "/pagecustomers",
         "methods": [
           "post",
           "get"
@@ -290,15 +314,15 @@
         }
       ],
       "mappings": {
-        "Id": "id",
-        "Name": "name",
-        "City": "city",
-        "State": "state",
-        "Location": "location",
-        "SpecialRank": "special-rank"
+        "Id": "Id",
+        "Name": "Name",
+        "City": "City",
+        "State": "State",
+        "Location": "Location",
+        "SpecialRank": "Specialrank"
       },
       "rest": {
-        "path": "/?$#&top10customers",
+        "path": "/top10customers",
         "methods": [
           "post",
           "get"
