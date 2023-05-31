@@ -20,7 +20,7 @@ namespace DabHelper.Tests
 
         public CustomerTests(ITestOutputHelper output)
         {
-            helper = new RestHelper<Customers>("http://localhost:5000/api/customers");
+            helper = new RestHelper<Customers>(TestSettings.URL);
             this.output = output;
         }
 
