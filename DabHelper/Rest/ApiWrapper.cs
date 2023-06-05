@@ -5,17 +5,17 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Web;
 using System.Text.Json;
-using DabHelper.Library;
+using DabHelper.Rest;
 
-namespace DabHelpers;
+namespace DabHelper.Rest;
 
-public partial class RestHelper<T> where T : new()
+public partial class ApiWrapper<T> where T : new()
 {
     private readonly string baseUri;
     private readonly string? restName;
     private readonly HttpClient httpClient;
 
-    public RestHelper(string baseUri, HttpClient? httpClient = null)
+    public ApiWrapper(string baseUri, HttpClient? httpClient = null)
     {
         this.baseUri = Uri.TryCreate(baseUri, UriKind.Absolute, out var uri) ? uri.ToString() : throw new ArgumentException("Uri invalid.", nameof(baseUri));
         this.httpClient = httpClient ?? new();
@@ -45,7 +45,7 @@ public partial class RestHelper<T> where T : new()
 
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+        var result = await response.Content.ReadFromJsonAsync<ResponseRoot<T>>();
         return (result?.Values!, result?.ContinuationUrl!);
 
         string CombineQuerystring()
@@ -103,7 +103,7 @@ public partial class RestHelper<T> where T : new()
 
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+        var result = await response.Content.ReadFromJsonAsync<ResponseRoot<T>>();
 
         if (result is null)
         {
@@ -136,7 +136,7 @@ public partial class RestHelper<T> where T : new()
 
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+        var result = await response.Content.ReadFromJsonAsync<ResponseRoot<T>>();
 
         if (result is null)
         {
@@ -210,7 +210,7 @@ public partial class RestHelper<T> where T : new()
 
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<RestRoot<T>>();
+        var result = await response.Content.ReadFromJsonAsync<ResponseRoot<T>>();
 
         if (result is null)
         {

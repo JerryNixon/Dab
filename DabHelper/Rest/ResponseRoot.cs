@@ -3,9 +3,9 @@
 using System;
 using System.Text.Json.Serialization;
 
-namespace DabHelpers;
+namespace DabHelper.Rest;
 
-public class RestRoot<T>
+public class ResponseRoot<T>
 {
     [JsonPropertyName("value")]
     public IEnumerable<T> Values { get; set; } = default!;

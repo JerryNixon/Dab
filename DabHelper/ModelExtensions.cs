@@ -5,14 +5,14 @@ using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 
-namespace DabHelper.Library
+namespace DabHelper
 {
     public static class ModelExtensions
     {
         public static Uri ToUriWithKeys(this object model, string baseUri, IEnumerable<PropertyInfo>? keys = null)
         {
             ArgumentNullException.ThrowIfNull(model);
-            ArgumentNullException.ThrowIfNullOrEmpty(baseUri);
+            ArgumentException.ThrowIfNullOrEmpty(baseUri);
 
             if (keys is null)
             {
@@ -87,7 +87,7 @@ namespace DabHelper.Library
             ArgumentNullException.ThrowIfNull(model);
             ArgumentNullException.ThrowIfNull(removeThese);
 
-            var jsonDictionary = Clone(model);
+            var jsonDictionary = model.Clone();
 
             foreach (var key in removeThese)
             {
@@ -103,7 +103,7 @@ namespace DabHelper.Library
             ArgumentNullException.ThrowIfNull(model);
             ArgumentNullException.ThrowIfNull(propNames);
 
-            var jsonDictionary = Clone(model);
+            var jsonDictionary = model.Clone();
 
             var removeThese = model.GetType().GetProperties().Where(x => !propNames.Contains(x.Name));
             if (!removeThese.Any())
@@ -111,7 +111,7 @@ namespace DabHelper.Library
                 throw new Exception("Cannot CloneModel() when no matching properties are found.");
             }
 
-            return CloneWithout(model, removeThese);
+            return model.CloneWithout(removeThese);
         }
 
         public static Dictionary<string, JsonElement> CloneWith(this object model, IEnumerable<string> propNames)
@@ -119,7 +119,7 @@ namespace DabHelper.Library
             ArgumentNullException.ThrowIfNull(model);
             ArgumentNullException.ThrowIfNull(propNames);
 
-            var jsonDictionary = Clone(model);
+            var jsonDictionary = model.Clone();
 
             var removeThese = model.GetType().GetProperties().Where(x => !propNames.Contains(x.Name));
             if (!removeThese.Any())
@@ -127,7 +127,7 @@ namespace DabHelper.Library
                 throw new Exception("Cannot CloneModel() when no matching properties are found.");
             }
 
-            return CloneWithout(model, removeThese);
+            return model.CloneWithout(removeThese);
         }
 
         private static Dictionary<string, JsonElement> Clone(this object model)

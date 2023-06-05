@@ -1,5 +1,3 @@
-using DabHelpers;
-
 using DabHelper;
 
 using DabHelper.Models;
@@ -7,18 +5,19 @@ using DabHelper.Models;
 using DabHelper.Models.dbo;
 
 using Xunit.Abstractions;
+using DabHelper.Rest;
 
 namespace DabHelper.Tests
 {
     public class CustomerTests : Xunit.IAsyncLifetime
     {
         private readonly string name = Guid.NewGuid().ToString();
-        private readonly RestHelper<Customers> helper = default!;
+        private readonly ApiWrapper<Customers> helper = default!;
         private readonly ITestOutputHelper output;
 
         public CustomerTests(ITestOutputHelper output)
         {
-            helper = new RestHelper<Customers>(TestSettings.URL);
+            helper = new ApiWrapper<Customers>(TestSettings.URL);
             this.output = output;
         }
 

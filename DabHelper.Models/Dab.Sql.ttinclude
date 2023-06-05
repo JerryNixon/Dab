@@ -1,7 +1,7 @@
 ﻿<#
     var connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=SampleDb;User ID=DabLogin;Password=P@ssw0rd!;TrustServerCertificate=True;";
 #>
-<#@ include file="Dab.ttinclude" #>
+<#@ include file="Dab.Bcl.ttinclude" #>
 <#@ template    language    ="C#" #>
 <#@ assembly    name        ="System.Data" #>
 <#@ import      namespace   ="System.Data" #>
