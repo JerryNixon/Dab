@@ -1,6 +1,10 @@
 using DabHelpers;
 
-using Models.dbo;
+using DabHelper;
+
+using DabHelper.Models;
+
+using DabHelper.Models.dbo;
 
 using Xunit.Abstractions;
 

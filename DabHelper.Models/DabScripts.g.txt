@@ -1,6 +1,4 @@
 ﻿
-
-
 #dotnet tool install --global Microsoft.DataApiBuilder 
 #dotnet tool update --global Microsoft.DataApiBuilder 
 
@@ -29,12 +27,12 @@ dab update "SampleEdgeTwo" --config "dab-config.json" --map "Id:Id"
 dab add "SampleNode" --config "dab-config.json" --source "[dbo].[SampleNode]" --source.type "Table" --source.key-fields "Id" --rest "samplenode" --permissions "anonymous:create,read,update,delete"
 dab update "SampleNode" --config "dab-config.json" --map "Id:Id"
 
-dab add "vCustomers" --config "dab-config.json" --source "[dbo].[vCustomers]" --source.type "View" --source.key-fields "Id" --rest "vcustomers" --permissions "anonymous:create,read,update,delete"
+dab add "vCustomers" --config "dab-config.json" --source "[dbo].[vCustomers]" --source.type "View" --source.key-fields "Id" --rest "vcustomers" --permissions "anonymous:read"
 dab update "vCustomers" --config "dab-config.json" --map "Id:Id,Name:Name,City:City,State:State,Location:Location,SpecialRank:Specialrank,UpperName:Uppername"
 
-dab add "PageCustomers" --config "dab-config.json" --source "[dbo].[PageCustomers]" --source.type "stored-procedure" --source.params "PageSize:,StartIndex:" --rest.methods "post,get" --rest "pagecustomers" --permissions "anonymous:execute"
+dab add "PageCustomers" --config "dab-config.json" --source "[dbo].[PageCustomers]" --source.type "stored-procedure" --source.params "PageSize:,StartIndex:" --rest.methods "get" --rest "pagecustomers" --permissions "anonymous:execute"
 dab update "PageCustomers" --config "dab-config.json" --map "Id:Id,Name:Name,City:City,State:State"
 
-dab add "Top10Customers" --config "dab-config.json" --source "[dbo].[Top10Customers]" --source.type "stored-procedure"  --rest.methods "post,get" --rest "top10customers" --permissions "anonymous:execute"
+dab add "Top10Customers" --config "dab-config.json" --source "[dbo].[Top10Customers]" --source.type "stored-procedure"  --rest.methods "get" --rest "top10customers" --permissions "anonymous:execute"
 dab update "Top10Customers" --config "dab-config.json" --map "Id:Id,Name:Name,City:City,State:State,Location:Location,SpecialRank:Specialrank"
 

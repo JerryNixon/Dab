@@ -1,6 +1,4 @@
-﻿
-
-// more info at https://aka.ms/dab
+﻿// more info at https://aka.ms/dab
 
 using System;
 using System.Diagnostics;
@@ -9,12 +7,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Models
+namespace DabHelper.Models
 {
     public abstract class Poco { /* TODO */ }
 }
 
-namespace Models.dbo
+namespace DabHelper.Models.dbo
 {
     [DebuggerDisplay("dbo.Customers (Id = {Id}) [Table]")]
     public class Customers : Poco 

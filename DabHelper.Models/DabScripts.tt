@@ -1,4 +1,4 @@
-﻿<#@ include file="Dab.ttinclude" #>
+﻿<#@ include file="Dab.Sql.ttinclude" #>
 <#@ template language="C#" #>
 <#@ output extension=".g.txt" #>
 
@@ -19,8 +19,9 @@ dab init --config "dab-config.json" --graphql.disabled "true" --database-type ms
             keys = string.Join(",", dbo.KeyColumns.OrderByDescending(x => x.IsKey).ThenBy(x => x.Name).Select(x => $"{x.Name}"));
             keys = dbo.KeyColumns.Any() ? "--source.key-fields \"" + keys + "\"" : string.Empty;
         }
+        var auth = (dbo.Type == DboType.View) ? "read" : "create,read,update,delete";
 #>
-dab add "<#=dbo.Label#>" --config "dab-config.json" --source "<#=dbo.Source#>" --source.type "<#=dbo.Type#>" <#=keys#> --rest "<#=dbo.RestPath#>" --permissions "anonymous:create,read,update,delete"
+dab add "<#=dbo.Label#>" --config "dab-config.json" --source "<#=dbo.Source#>" --source.type "<#=dbo.Type#>" <#=keys#> --rest "<#=dbo.RestPath#>" --permissions "anonymous:<#=auth#>"
 dab update "<#=dbo.Label#>" --config "dab-config.json" --map "<#=dbo.FieldMap#>"
 
 <#}
@@ -33,7 +34,7 @@ dab update "<#=dbo.Label#>" --config "dab-config.json" --map "<#=dbo.FieldMap#>"
             parameters = $"--source.params \"{parameters}\"";
         }
 #>
-dab add "<#=proc.Label#>" --config "dab-config.json" --source "<#=proc.Source#>" --source.type "stored-procedure" <#=parameters#> --rest.methods "post,get" --rest "<#=proc.RestPath#>" --permissions "anonymous:execute"
+dab add "<#=proc.Label#>" --config "dab-config.json" --source "<#=proc.Source#>" --source.type "stored-procedure" <#=parameters#> --rest.methods "get" --rest "<#=proc.RestPath#>" --permissions "anonymous:execute"
 dab update "<#=proc.Label#>" --config "dab-config.json" --map "<#=proc.FieldMap#>"
 
 <# }#>

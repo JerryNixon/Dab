@@ -1,6 +1,7 @@
-﻿<#@ include file="Dab.ttinclude" #>
-<#@ template language="C#" #>
+﻿<#@ include file="Dab.Sql.ttinclude" #>
+<#@ template hostspecific="true" language="C#" #>
 <#@ output extension=".g.cs" #>
+<#@ parameter name="NamespaceHint" type="System.String" #>
 // more info at https://aka.ms/dab
 
 using System;
@@ -10,7 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Models
+namespace <#=NamespaceHint#>
 {
     public abstract class Poco { /* TODO */ }
 }
@@ -20,7 +21,7 @@ namespace Models
     foreach (var schema in Cache.Select(x => x.Schema).Distinct()) 
     { 
 #>
-namespace Models.<#= schema #>
+namespace <#=NamespaceHint#>.<#= schema #>
 {
 <#
     // looping through tables, views, procs
